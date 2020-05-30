@@ -8,10 +8,10 @@ trigger:
 
 variables:
   # Azure Resource Manager connection created during pipeline creation
-  azureSubscription: 'f2e03685-2e8b-4b20-8554-12b900e13bcf'
+  azureSubscription: $(subscriptionId)
 
   # Function app name
-  functionAppName: 'tgibbsstoragecrud'
+  functionAppName: $(storageCrudFunctionName)
 
   # Agent VM image name
   vmImageName: 'vs2017-win2016'
