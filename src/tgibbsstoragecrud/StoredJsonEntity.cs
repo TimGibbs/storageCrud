@@ -2,7 +2,7 @@
 
 namespace tgibbsstoragecrud
 {
-    class StoredJsonEntity : TableEntity
+    public class StoredJsonEntity : TableEntity
     {
         public StoredJsonEntity()
         {
