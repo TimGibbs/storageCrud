@@ -1,4 +1,5 @@
 ﻿using System;
+using AzureCloudStorageRepository;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
@@ -16,10 +17,9 @@ namespace tgibbsstoragecrud
 
             builder.Services
                 .AddTransient(o => 
-                CloudStorageAccount.Parse(o.GetService<IConfiguration>()["AzureWebJobsStorage"])
-                    .CreateCloudTableClient());
+                    CloudStorageAccount.Parse(o.GetService<IConfiguration>()["AzureWebJobsStorage"]).CreateCloudTableClient());
             builder.Services
-                .AddTransient(typeof(IRepository<>), typeof(TableStorageRepository<>));
+                .AddTransient(typeof(ITableStorageRepository<>), typeof(TableStorageRepository<>));
 
         }
     }

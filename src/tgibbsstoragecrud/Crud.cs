@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using AzureCloudStorageRepository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -13,10 +14,10 @@ namespace tgibbsstoragecrud
 {
     public class Crud
     {
-        private readonly IRepository<StoredJsonEntity> _repository;
-        public Crud(IRepository<StoredJsonEntity> repository)
+        private readonly ITableStorageRepository<StoredJsonEntity> _tableStorageRepository;
+        public Crud(ITableStorageRepository<StoredJsonEntity> tableStorageRepository)
         {
-            _repository = repository;
+            _tableStorageRepository = tableStorageRepository;
         }
 
         [FunctionName("GetById")]
@@ -24,9 +25,9 @@ namespace tgibbsstoragecrud
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "{item}/{id}")] HttpRequest req, ExecutionContext context, string item, string id, ILogger log)
         {
 
-            var r = await _repository
+            var r = await _tableStorageRepository
                 .OverrideTableName(item)
-                .GetById(id);
+                .GetByIdAsync(id);
 
             return r != null
                 ? (IActionResult)new OkObjectResult(JsonConvert.DeserializeObject(r.Body))
@@ -39,9 +40,9 @@ namespace tgibbsstoragecrud
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "{item}")] HttpRequest req, ExecutionContext context, string item, ILogger log)
         {
 
-            var r = await _repository
+            var r = await _tableStorageRepository
                 .OverrideTableName(item)
-                .Get();
+                .GetAsync();
 
             return r != null
                 ? (IActionResult)new OkObjectResult(r.Select(o=>JsonConvert.DeserializeObject(o.Body)))
@@ -52,9 +53,9 @@ namespace tgibbsstoragecrud
         public async Task<IActionResult> RunDelete(
             [HttpTrigger(AuthorizationLevel.Function, "Delete", Route = "{item}/{id}")] HttpRequest req, ExecutionContext context, string item, string id, ILogger log)
         {
-            await _repository
+            await _tableStorageRepository
                 .OverrideTableName(item)
-                .Delete(id);
+                .DeleteAsync(id, true);
 
             return new OkResult();
         }
@@ -76,9 +77,9 @@ namespace tgibbsstoragecrud
 
             var entity = new StoredJsonEntity(item, id) { Body = i };
 
-            var obj = await _repository
+            var obj = await _tableStorageRepository
                 .OverrideTableName(item)
-                .InsertOrReplace(entity);
+                .InsertOrReplaceAsync(entity);
 
             return new OkObjectResult(JsonConvert.DeserializeObject(obj.Body));
         }
@@ -95,9 +96,9 @@ namespace tgibbsstoragecrud
 
             var entity = new StoredJsonEntity(item, id) { Body = requestBody };
 
-            var obj = await _repository
+            var obj = await _tableStorageRepository
                 .OverrideTableName(item)
-                .InsertOrReplace(entity);
+                .InsertOrReplaceAsync(entity);
 
             return new OkObjectResult(JsonConvert.DeserializeObject(obj.Body));
 
